@@ -1,0 +1,20 @@
+[package]
+name = "monopoly-client"
+description = "Game client — raylib GUI, connects to server over TCP"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "monopoly-client"
+path = "src/main.rs"
+
+[dependencies]
+monopoly-core = { path = "../monopoly-core" }
+tokio = { workspace = true }
+serde = { workspace = true }
+bincode = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+anyhow = { workspace = true }

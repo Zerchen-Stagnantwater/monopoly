@@ -1,0 +1,20 @@
+[package]
+name = "monopoly-server"
+description = "Authoritative game server"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "monopoly-server"
+path = "src/main.rs"
+
+[dependencies]
+monopoly-core = { path = "../monopoly-core" }
+tokio = { workspace = true }
+serde = { workspace = true }
+bincode = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+anyhow = { workspace = true }
