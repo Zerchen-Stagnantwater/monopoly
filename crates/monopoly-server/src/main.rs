@@ -11,9 +11,5 @@ async fn main() -> Result<()> {
     let board = load_board("config/boards/standard.toml")?;
     info!("Board loaded — {} tiles", board.tile_count());
 
-    for (i, tile) in board.tiles.iter().enumerate() {
-        info!("  [{:02}] {:?}", i, tile);
-    }
-
     Ok(())
 }
