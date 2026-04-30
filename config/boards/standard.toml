@@ -1,0 +1,248 @@
+# Standard Monopoly board — 40 tiles in order starting from Go.
+# Rent array: [no_house, 1_house, 2_houses, 3_houses, 4_houses, hotel]
+
+[[tiles]]
+type = "Go"
+
+[[tiles]]
+type = "Property"
+name = "Mediterranean Avenue"
+color_group = "Brown"
+price = 60
+building_cost = 50
+rent = [2, 10, 30, 90, 160, 250]
+
+[[tiles]]
+type = "CommunityChest"
+
+[[tiles]]
+type = "Property"
+name = "Baltic Avenue"
+color_group = "Brown"
+price = 60
+building_cost = 50
+rent = [4, 20, 60, 180, 320, 450]
+
+[[tiles]]
+type = "Tax"
+name = "Income Tax"
+amount = 200
+
+[[tiles]]
+type = "Railroad"
+name = "Reading Railroad"
+price = 200
+
+[[tiles]]
+type = "Property"
+name = "Oriental Avenue"
+color_group = "LightBlue"
+price = 100
+building_cost = 50
+rent = [6, 30, 90, 270, 400, 550]
+
+[[tiles]]
+type = "Chance"
+
+[[tiles]]
+type = "Property"
+name = "Vermont Avenue"
+color_group = "LightBlue"
+price = 100
+building_cost = 50
+rent = [6, 30, 90, 270, 400, 550]
+
+[[tiles]]
+type = "Property"
+name = "Connecticut Avenue"
+color_group = "LightBlue"
+price = 120
+building_cost = 50
+rent = [8, 40, 100, 300, 450, 600]
+
+[[tiles]]
+type = "Jail"
+
+[[tiles]]
+type = "Property"
+name = "St. Charles Place"
+color_group = "Pink"
+price = 140
+building_cost = 100
+rent = [10, 50, 150, 450, 625, 750]
+
+[[tiles]]
+type = "Utility"
+name = "Electric Company"
+price = 150
+
+[[tiles]]
+type = "Property"
+name = "States Avenue"
+color_group = "Pink"
+price = 140
+building_cost = 100
+rent = [10, 50, 150, 450, 625, 750]
+
+[[tiles]]
+type = "Property"
+name = "Virginia Avenue"
+color_group = "Pink"
+price = 160
+building_cost = 100
+rent = [12, 60, 180, 500, 700, 900]
+
+[[tiles]]
+type = "Railroad"
+name = "Pennsylvania Railroad"
+price = 200
+
+[[tiles]]
+type = "Property"
+name = "St. James Place"
+color_group = "Orange"
+price = 180
+building_cost = 100
+rent = [14, 70, 200, 550, 750, 950]
+
+[[tiles]]
+type = "CommunityChest"
+
+[[tiles]]
+type = "Property"
+name = "Tennessee Avenue"
+color_group = "Orange"
+price = 180
+building_cost = 100
+rent = [14, 70, 200, 550, 750, 950]
+
+[[tiles]]
+type = "Property"
+name = "New York Avenue"
+color_group = "Orange"
+price = 200
+building_cost = 100
+rent = [16, 80, 220, 600, 800, 1000]
+
+[[tiles]]
+type = "FreeParking"
+
+[[tiles]]
+type = "Property"
+name = "Kentucky Avenue"
+color_group = "Red"
+price = 220
+building_cost = 150
+rent = [18, 90, 250, 700, 875, 1050]
+
+[[tiles]]
+type = "Chance"
+
+[[tiles]]
+type = "Property"
+name = "Indiana Avenue"
+color_group = "Red"
+price = 220
+building_cost = 150
+rent = [18, 90, 250, 700, 875, 1050]
+
+[[tiles]]
+type = "Property"
+name = "Illinois Avenue"
+color_group = "Red"
+price = 240
+building_cost = 150
+rent = [20, 100, 300, 750, 925, 1100]
+
+[[tiles]]
+type = "Railroad"
+name = "B&O Railroad"
+price = 200
+
+[[tiles]]
+type = "Property"
+name = "Atlantic Avenue"
+color_group = "Yellow"
+price = 260
+building_cost = 150
+rent = [22, 110, 330, 800, 975, 1150]
+
+[[tiles]]
+type = "Property"
+name = "Ventnor Avenue"
+color_group = "Yellow"
+price = 260
+building_cost = 150
+rent = [22, 110, 330, 800, 975, 1150]
+
+[[tiles]]
+type = "Utility"
+name = "Water Works"
+price = 150
+
+[[tiles]]
+type = "Property"
+name = "Marvin Gardens"
+color_group = "Yellow"
+price = 280
+building_cost = 150
+rent = [24, 120, 360, 850, 1025, 1200]
+
+[[tiles]]
+type = "GoToJail"
+
+[[tiles]]
+type = "Property"
+name = "Pacific Avenue"
+color_group = "Green"
+price = 300
+building_cost = 200
+rent = [26, 130, 390, 900, 1100, 1275]
+
+[[tiles]]
+type = "Property"
+name = "North Carolina Avenue"
+color_group = "Green"
+price = 300
+building_cost = 200
+rent = [26, 130, 390, 900, 1100, 1275]
+
+[[tiles]]
+type = "CommunityChest"
+
+[[tiles]]
+type = "Property"
+name = "Pennsylvania Avenue"
+color_group = "Green"
+price = 320
+building_cost = 200
+rent = [28, 150, 450, 1000, 1200, 1400]
+
+[[tiles]]
+type = "Railroad"
+name = "Short Line Railroad"
+price = 200
+
+[[tiles]]
+type = "Chance"
+
+[[tiles]]
+type = "Property"
+name = "Park Place"
+color_group = "DarkBlue"
+price = 350
+building_cost = 200
+rent = [35, 175, 500, 1100, 1300, 1500]
+
+[[tiles]]
+type = "Tax"
+name = "Luxury Tax"
+amount = 100
+
+[[tiles]]
+type = "Property"
+name = "Boardwalk"
+color_group = "DarkBlue"
+price = 400
+building_cost = 200
+rent = [50, 200, 600, 1400, 1700, 2000]
