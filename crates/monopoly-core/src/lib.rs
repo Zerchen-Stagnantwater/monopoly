@@ -8,6 +8,8 @@ pub mod movement;
 pub mod rent;
 pub mod buying;
 pub mod jail;
+pub mod buildings;
+pub mod trading;
 
 pub use board::Board;
 pub use player::Player;
@@ -19,3 +21,5 @@ pub use movement::{advance_player, send_to_jail, MoveResult };
 pub use rent::calculate_rent;
 pub use buying::{ buy_property, decline_purchase, place_bid, finalize_auction, BuyResult};
 pub use jail::{pay_jail_fine, use_jail_card, roll_for_jail, JailResult };
+pub use buildings::{build_house, sell_house, mortgage_property, unmortgage_property, BuildResult, MortgageResult};
+pub use trading::{execute_trade, TradeOffer, TradeResult};

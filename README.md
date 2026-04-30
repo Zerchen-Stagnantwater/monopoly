@@ -47,8 +47,8 @@ cargo run -p monopoly-client
 - [X] RuleSet system
 - [X] Board definition (40 tiles, TOML config) 
 - [X] Dice, movement, rent, buying, jail logic
-- [ ] Buildings and mortgages
-- [ ] Trading 
+- [X] Buildings and mortgages
+- [X] Trading 
 - [ ] Bankruptcy and win condition
 - [ ] Networking
 - [ ] GUI
