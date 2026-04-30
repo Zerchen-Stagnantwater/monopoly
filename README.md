@@ -43,8 +43,8 @@ cargo run -p monopoly-client
 ## Roadmap
 
 - [x] Workspace scaffold
-- [ ] Core data model
-- [ ] RuleSet system
+- [X] Core data model
+- [X] RuleSet system
 - [ ] Full game logic
 - [ ] Networking
 - [ ] GUI
