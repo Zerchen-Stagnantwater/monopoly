@@ -49,7 +49,7 @@ cargo run -p monopoly-client
 - [X] Dice, movement, rent, buying, jail logic
 - [X] Buildings and mortgages
 - [X] Trading 
-- [ ] Bankruptcy and win condition
+- [X] Bankruptcy and win condition
 - [ ] Networking
 - [ ] GUI
 - [ ] Custom game modes
