@@ -45,9 +45,11 @@ cargo run -p monopoly-client
 - [x] Workspace scaffold
 - [X] Core data model
 - [X] RuleSet system
+- [X] Board definition (40 tiles, TOML config) 
 - [ ] Full game logic
 - [ ] Networking
 - [ ] GUI
-- [ ] Custom game 
+- [ ] Custom game modes
+
 
 
