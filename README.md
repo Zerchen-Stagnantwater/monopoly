@@ -46,7 +46,10 @@ cargo run -p monopoly-client
 - [X] Core data model
 - [X] RuleSet system
 - [X] Board definition (40 tiles, TOML config) 
-- [ ] Full game logic
+- [X] Dice, movement, rent, buying, jail logic
+- [ ] Buildings and mortgages
+- [ ] Trading 
+- [ ] Bankruptcy and win condition
 - [ ] Networking
 - [ ] GUI
 - [ ] Custom game modes
