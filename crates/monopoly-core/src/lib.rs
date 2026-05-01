@@ -11,6 +11,7 @@ pub mod jail;
 pub mod buildings;
 pub mod trading;
 pub mod bankruptcy;
+pub mod network;
 
 pub use board::Board;
 pub use player::Player;
@@ -25,3 +26,4 @@ pub use jail::{pay_jail_fine, use_jail_card, roll_for_jail, JailResult };
 pub use buildings::{build_house, sell_house, mortgage_property, unmortgage_property, BuildResult, MortgageResult};
 pub use trading::{execute_trade, TradeOffer, TradeResult};
 pub use bankruptcy::{declare_bankrupt, liquidation_value, is_bankrupt, BankruptcyResult};
+pub use network::{ClientMessage, ServerMessage, Packet};
