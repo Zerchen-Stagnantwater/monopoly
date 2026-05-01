@@ -6,6 +6,7 @@ use crate::state::GameState;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum ClientMessage {
     // --- Lobby ---
+    Connect { addr: String },
     /// First message sent after connecting
     Join { name: String, token: Token },
     /// Host triggers game start

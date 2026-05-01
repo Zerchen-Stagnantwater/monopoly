@@ -1,36 +1,39 @@
+#![allow(dead_code)]
+
 mod connection;
+mod screens;
+mod network_thread;
 
-use anyhow::Result;
-use tracing::info;
-use monopoly_core::network::ClientMessage;
-use monopoly_core::player::Token;
+use macroquad::prelude::*;
+use monopoly_core::network::ServerMessage;
+use screens::Screen;
 
-#[tokio::main]
-async fn main() -> Result<()> {
-    tracing_subscriber::fmt::init();
+fn window_conf() -> Conf {
+    Conf {
+        window_title: "Monopoly".to_owned(),
+        window_width: 1280,
+        window_height: 800,
+        fullscreen: false,
+        ..Default::default()
+    }
+}
 
-    info!("monopoly-client starting up");
+#[macroquad::main(window_conf)]
+async fn main() {
+    let (net_tx, net_rx) = std::sync::mpsc::channel::<ServerMessage>();
+    let (action_tx, action_rx) = std::sync::mpsc::channel::<monopoly_core::network::ClientMessage>();
 
-    // Temporary smoke test — connect, send Join, print responses
-    // Will be replaced by raylib GUI in Phase 4
-    let addr = std::env::args().nth(1).unwrap_or_else(|| "127.0.0.1:7777".to_string());
-    info!("Connecting to {}", addr);
-
-    let mut conn = connection::Connection::connect(&addr).await?;
-    info!("Connected");
-
-    conn.send(ClientMessage::Join {
-        name: "TestPlayer".to_string(),
-        token: Token::Car,
+    // Spawn networking on a separate OS thread with its own tokio runtime
+    std::thread::spawn(move || {
+        network_thread::run(net_tx, action_rx);
     });
 
-    // Listen for a few messages then exit
-    for _ in 0..5 {
-        tokio::time::sleep(tokio::time::Duration::from_millis(500)).await;
-        while let Some(msg) = conn.try_recv() {
-            info!("Received: {:?}", msg);
-        }
-    }
+    let mut screen = Screen::connect(action_tx);
 
-    Ok(())
+    loop {
+        clear_background(WHITE);
+        screen.update(&net_rx);
+        screen.draw();
+        next_frame().await;
+    }
 }

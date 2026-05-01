@@ -247,6 +247,10 @@ pub async fn handle_message(
             lobby.broadcast(ServerMessage::StateUpdate { state });
         }
 
+        ClientMessage::Connect { .. } => {
+            // Internal client signal, never sent over the wire
+        }
+
         ClientMessage::DeclareBankruptcy => {
             let id = player_id.ok_or_else(|| anyhow::anyhow!("Not joined"))?;
             let state = lobby.game.as_mut().ok_or_else(|| anyhow::anyhow!("Game not started"))?;
