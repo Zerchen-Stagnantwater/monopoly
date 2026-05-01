@@ -42,7 +42,7 @@ cargo run -p monopoly-client
 
 ## Roadmap
 
-- [x] Workspace scaffold
+- [X] Workspace scaffold
 - [X] Core data model
 - [X] RuleSet system
 - [X] Board definition (40 tiles, TOML config) 
@@ -50,7 +50,9 @@ cargo run -p monopoly-client
 - [X] Buildings and mortgages
 - [X] Trading 
 - [X] Bankruptcy and win condition
-- [ ] Networking
+- [X] Packet design (ClientMessage / ServerMessage)
+- [X] Server lobby, session handling, game engine
+- [X] Client connection layer 
 - [ ] GUI
 - [ ] Custom game modes
 
