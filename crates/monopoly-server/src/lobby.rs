@@ -116,6 +116,7 @@ impl Lobby {
             winner: None,
             houses_remaining: ruleset.max_houses,
             hotels_remaining: ruleset.max_hotels,
+            auction_passers: Vec::new(),
         });
 
         self.state = LobbyState::InGame;

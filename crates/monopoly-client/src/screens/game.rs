@@ -17,60 +17,97 @@ pub struct GameScreen {
     pub state: GameState,
     pub my_id: u8,
     pub tx: mpsc::Sender<ClientMessage>,
+    bid_input: String,
 }
 
 impl GameScreen {
     pub fn new(state: GameState, my_id: u8, tx: mpsc::Sender<ClientMessage>) -> Self {
-        Self { state, my_id, tx }
+        Self { state, my_id, tx, bid_input: String::new() }
     }
 
-    pub fn update(&mut self) -> Option<Screen> {
-        // Action keys for current player
-        if self.state.players[self.state.current_player_index].id == self.my_id {
-            match self.state.turn_phase {
-                TurnPhase::WaitingForRoll => {
-                    if is_key_pressed(KeyCode::Space) {
-                        let _ = self.tx.send(ClientMessage::RollDice);
-                    }
-                }
-                TurnPhase::BuyDecision { .. } => {
-                    if is_key_pressed(KeyCode::B) {
-                        let _ = self.tx.send(ClientMessage::BuyProperty);
-                    }
-                    if is_key_pressed(KeyCode::D) {
-                        let _ = self.tx.send(ClientMessage::DeclineProperty);
-                    }
-                }
-                TurnPhase::PayingRent { amount: _, to_player: _ } => {
-                     if is_key_pressed(KeyCode::E) {
-                        let _ = self.tx.send(ClientMessage::PayRent);
-                    }
-                }
-
-                TurnPhase::PostRoll => {
-                    if is_key_pressed(KeyCode::E) {
-                        let _ = self.tx.send(ClientMessage::EndTurn);
-                    }
-                }
-                TurnPhase::JailDecision => {
-                    if is_key_pressed(KeyCode::P) {
-                        let _ = self.tx.send(ClientMessage::PayJailFine);
-                    }
-                    if is_key_pressed(KeyCode::R) {
-                        let _ = self.tx.send(ClientMessage::RollForJail);
-                    }
-                }
-                _ => {}
+pub fn update(&mut self) -> Option<Screen> {
+    // Auction input — open to ALL players
+    if matches!(self.state.turn_phase, TurnPhase::Auction { .. }) {
+        if let Some(c) = get_char_pressed() {
+            if c.is_ascii_digit() {
+                self.bid_input.push(c);
             }
         }
-        None
+        if is_key_pressed(KeyCode::Backspace) {
+            self.bid_input.pop();
+        }
+        if is_key_pressed(KeyCode::Enter) {
+            if let Ok(amount) = self.bid_input.trim().parse::<u32>() {
+                let _ = self.tx.send(ClientMessage::PlaceBid { amount });
+                self.bid_input.clear();
+            }
+        }
+        if is_key_pressed(KeyCode::P) {
+            let _ = self.tx.send(ClientMessage::PassBid);
+            self.bid_input.clear();
+        }
+        return None;
     }
 
+    // All other actions — current player only
+    if self.state.players[self.state.current_player_index].id == self.my_id {
+        match self.state.turn_phase {
+            TurnPhase::WaitingForRoll => {
+                if is_key_pressed(KeyCode::Space) {
+                    let _ = self.tx.send(ClientMessage::RollDice);
+                }
+            }
+            TurnPhase::BuyDecision { .. } => {
+                if is_key_pressed(KeyCode::B) {
+                    let _ = self.tx.send(ClientMessage::BuyProperty);
+                }
+                if is_key_pressed(KeyCode::D) {
+                    let _ = self.tx.send(ClientMessage::DeclineProperty);
+                }
+            }
+            TurnPhase::PostRoll => {
+                if is_key_pressed(KeyCode::E) {
+                    let _ = self.tx.send(ClientMessage::EndTurn);
+                }
+            }
+            TurnPhase::JailDecision => {
+                if is_key_pressed(KeyCode::P) {
+                    let _ = self.tx.send(ClientMessage::PayJailFine);
+                }
+                if is_key_pressed(KeyCode::R) {
+                    let _ = self.tx.send(ClientMessage::RollForJail);
+                }
+            }
+            TurnPhase::PayingRent { amount: _, to_player: _ } => {
+                if is_key_pressed(KeyCode::E) {
+                    let _ = self.tx.send(ClientMessage::PayRent);
+                }
+            }
+            _ => {}
+        }
+    }
+
+    None
+}
     pub fn draw(&self) {
         draw_board(&self.state);
         draw_players(&self.state);
         draw_player_info(&self.state, self.my_id);
         draw_action_panel(&self.state, self.my_id);
+        draw_bid_input(&self.state, &self.bid_input);
+    }
+}
+
+fn draw_bid_input(state: &GameState, bid_input: &str) {
+    if matches!(state.turn_phase, TurnPhase::Auction { .. }) {
+        let px = BOARD_X + BOARD_SIZE + 20.0;
+        let py = BOARD_Y + BOARD_SIZE - 100.0;
+        draw_text("Your bid:", px, py, 20.0, BLACK);
+        draw_rectangle_lines(px, py + 8.0, 200.0, 34.0, 2.0, BLUE);
+        draw_text(
+            &format!("${}", bid_input),
+            px + 8.0, py + 30.0, 22.0, BLACK,
+        );
     }
 }
 
@@ -254,8 +291,7 @@ fn draw_player_info(state: &GameState, my_id: u8) {
         }
     }
 }
-
-fn draw_action_panel(state: &GameState, my_id: u8) {
+pub fn draw_action_panel(state: &GameState, my_id: u8) {
     let px = BOARD_X + BOARD_SIZE + 20.0;
     let py = BOARD_Y + BOARD_SIZE - 280.0;
 
@@ -263,6 +299,17 @@ fn draw_action_panel(state: &GameState, my_id: u8) {
     draw_text("ACTIONS", px, py + 30.0, 24.0, BLACK);
 
     let current = &state.players[state.current_player_index];
+
+    // Auction is open to all players regardless of whose turn it is
+    if let TurnPhase::Auction { highest_bid, highest_bidder, .. } = &state.turn_phase {
+        draw_text(&format!("AUCTION - Top bid: ${}", highest_bid), px, py + 60.0, 20.0, BLACK);
+        draw_text(&format!("Leader: Player {}", highest_bidder), px, py + 85.0, 20.0, DARKGRAY);
+        draw_text("Type amount + Enter to bid", px, py + 115.0, 18.0, BLACK);
+        draw_text("[P] Pass on auction", px, py + 138.0, 18.0, RED);
+        return;
+    }
+
+    // All other phases — only current player sees controls
     if current.id != my_id {
         draw_text(
             &format!("Waiting for {}...", current.name),
@@ -296,11 +343,9 @@ fn draw_action_panel(state: &GameState, my_id: u8) {
             draw_text(&format!("Pay rent: ${}", amount), px, py + 60.0, 20.0, RED);
             draw_text("[E] Confirm", px, py + 85.0, 20.0, BLACK);
         }
-        TurnPhase::Auction { highest_bid, .. } => {
-            draw_text(&format!("Auction! Top bid: ${}", highest_bid), px, py + 60.0, 20.0, BLACK);
-        }
         TurnPhase::EndTurn => {
             draw_text("Ending turn...", px, py + 60.0, 20.0, DARKGRAY);
         }
+        TurnPhase::Auction { .. } => {} // handled above
     }
 }

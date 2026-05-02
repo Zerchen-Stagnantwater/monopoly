@@ -180,6 +180,25 @@ pub async fn handle_message(
             lobby.broadcast(ServerMessage::StateUpdate { state });
         }
 
+        ClientMessage::PassBid => {
+            let id = player_id.ok_or_else(|| anyhow::anyhow!("Not joined"))?;
+            let state = lobby.game.as_mut().ok_or_else(|| anyhow::anyhow!("Game not started"))?;
+
+            if !state.auction_passers.contains(&id) {
+                state.auction_passers.push(id);
+            }
+
+            // Check if all active players have passed
+            let active_count = state.players.iter().filter(|p| !p.bankrupt).count();
+            if state.auction_passers.len() >= active_count {
+                finalize_auction(state);
+                state.auction_passers.clear();
+            }
+
+            let state = lobby.game.clone().unwrap();
+            lobby.broadcast(ServerMessage::StateUpdate { state });
+        }
+
         ClientMessage::FinalizeAuction => {
             let state = lobby.game.as_mut().ok_or_else(|| anyhow::anyhow!("Game not started"))?;
             finalize_auction(state);
@@ -321,7 +340,6 @@ pub async fn handle_message(
             lobby.broadcast(ServerMessage::StateUpdate { state });
         }
 
-        ClientMessage::PassBid => {}
     }
 
     Ok(None)

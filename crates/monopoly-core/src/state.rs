@@ -26,6 +26,7 @@ pub struct GameState {
     // Building supply lives here so it's under one mutable borrow
     pub houses_remaining: u8,
     pub hotels_remaining: u8,
+    pub auction_passers: Vec<u8>,
 }
 
 impl GameState {
@@ -47,5 +48,6 @@ impl GameState {
         self.turn_phase = TurnPhase::WaitingForRoll;
         self.turn_number += 1;
         self.last_roll = None;
+        self.auction_passers.clear();
     }
 }
