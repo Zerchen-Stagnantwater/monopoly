@@ -63,6 +63,11 @@ impl Screen {
                     s.players.push((id, name, token));
                 }
             }
+            ServerMessage::LobbyState { players } => {
+                if let Screen::Lobby(s) = self {
+                    s.players = players;
+                }
+            }
             ServerMessage::GameStarted => {
                 // Transition handled on StateUpdate
             }

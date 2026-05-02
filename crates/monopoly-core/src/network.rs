@@ -25,7 +25,7 @@ pub enum ClientMessage {
     PassBid,
     /// End the auction (host only, or auto after all pass)
     FinalizeAuction,
-
+    PayRent,
     // --- Jail ---
     /// Pay the jail fine
     PayJailFine,
@@ -69,6 +69,8 @@ pub enum ServerMessage {
     // --- Lobby ---
     /// Sent to a client immediately after they successfully join
     JoinAck { assigned_id: u8 },
+    /// Sent to a newly joined player with the full current lobby roster
+    LobbyState { players: Vec<(u8, String, Token)> }, 
     /// Broadcast to all when a new player joins
     PlayerJoined { id: u8, name: String, token: Token },
     /// Broadcast to all when a player disconnects in lobby

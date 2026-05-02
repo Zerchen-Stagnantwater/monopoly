@@ -41,6 +41,12 @@ impl GameScreen {
                         let _ = self.tx.send(ClientMessage::DeclineProperty);
                     }
                 }
+                TurnPhase::PayingRent { amount: _, to_player: _ } => {
+                     if is_key_pressed(KeyCode::E) {
+                        let _ = self.tx.send(ClientMessage::PayRent);
+                    }
+                }
+
                 TurnPhase::PostRoll => {
                     if is_key_pressed(KeyCode::E) {
                         let _ = self.tx.send(ClientMessage::EndTurn);

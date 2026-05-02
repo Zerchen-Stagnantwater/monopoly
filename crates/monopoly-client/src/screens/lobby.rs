@@ -32,14 +32,23 @@ impl LobbyScreen {
             });
             self.joined = true;
         }
+
+        if is_key_pressed(KeyCode::S){
+            let _ = self.tx.send(ClientMessage::StartGame);
+        }
+
         None
     }
 
     pub fn draw(&self) {
         let cx = screen_width() / 2.0;
         draw_text("LOBBY", cx - 60.0, 80.0, 48.0, BLACK);
-        draw_text("Waiting for players...", cx - 120.0, 140.0, 24.0, DARKGRAY);
-
+       // draw_text("Waiting for players...", cx - 120.0, 140.0, 24.0, DARKGRAY);
+        if self.my_id == Some(0) {
+            draw_text("[S] Start game", cx - 120.0, 140.0 , 24.0, DARKGREEN);
+        } else {
+            draw_text("Waiting for host to start...", cx, 140.0 , 24.0, DARKGRAY);
+        }
         for (i, (id, name, _token)) in self.players.iter().enumerate() {
             draw_text(
                 &format!("Player {}: {}", id, name),
@@ -50,6 +59,6 @@ impl LobbyScreen {
             );
         }
 
-        draw_text("Host: press S to start", cx - 120.0, 600.0, 22.0, DARKGRAY);
+        draw_text("Host: press s to start", cx - 120.0, 600.0, 22.0, DARKGRAY);
     }
 }

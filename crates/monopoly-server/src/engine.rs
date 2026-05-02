@@ -21,13 +21,33 @@ pub async fn handle_message(
     let mut lobby = lobby.lock().await;
 
     match msg {
+
         ClientMessage::Join { name, token } => {
             let id = lobby.add_player(name.clone(), token.clone(), tx)
                 .ok_or_else(|| anyhow::anyhow!("Lobby full or game already started"))?;
+
+            // Tell the new player their id
             lobby.send_to(id, ServerMessage::JoinAck { assigned_id: id });
-            lobby.broadcast(ServerMessage::PlayerJoined { id, name, token });
+
+            // Send existing roster to the new player
+            let roster = lobby.players.values()
+                .map(|p| (p.id, p.name.clone(), p.token.clone()))
+                .collect();
+            lobby.send_to(id, ServerMessage::LobbyState { players: roster });
+
+            // Tell everyone else about the new player
+            // Tell everyone else about the new player (not the joiner themselves)
+            for (&pid, player) in &lobby.players {
+              if pid != id {
+                let _ = player.tx.send(ServerMessage::PlayerJoined {
+                    id,
+                    name: name.clone(),
+                    token: token.clone(),
+                });
+              }
+            }
             return Ok(Some(id));
-        }
+        }      
 
         ClientMessage::StartGame => {
             let id = player_id.ok_or_else(|| anyhow::anyhow!("Not joined"))?;
@@ -115,6 +135,40 @@ pub async fn handle_message(
             };
             decline_purchase(state, tile_index, auction_enabled);
             let state = lobby.game.clone().unwrap();
+            lobby.broadcast(ServerMessage::StateUpdate { state });
+        }
+
+        ClientMessage::PayRent => {
+            let id = player_id.ok_or_else(|| anyhow::anyhow!("Not joined"))?;
+            let state = lobby.game.as_mut().ok_or_else(|| anyhow::anyhow!("Game not started"))?;
+
+            if state.players[state.current_player_index].id != id {
+                bail!("Not your turn");
+            }
+
+            let (amount, to_player) = match state.turn_phase {
+                TurnPhase::PayingRent { amount, to_player } => (amount, to_player),
+                    _ => bail!("Not in rent phase"),
+            };
+
+            // Deduct from payer
+            state.players[state.current_player_index].money =
+            state.players[state.current_player_index].money.saturating_sub(amount);
+
+            // Pay the owner
+            if let Some(owner) = state.players.iter_mut().find(|p| p.id == to_player) {
+                owner.money += amount;
+            }
+
+            state.turn_phase = TurnPhase::PostRoll;
+
+            let log = format!(
+                "{} paid ${} in rent",
+                state.players[state.current_player_index].name,
+                amount
+                );
+            let state = lobby.game.clone().unwrap();
+            lobby.broadcast(ServerMessage::EventLog { message: log });
             lobby.broadcast(ServerMessage::StateUpdate { state });
         }
 
