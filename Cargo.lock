@@ -291,7 +291,7 @@ dependencies = [
 
 [[package]]
 name = "monopoly-client"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "bincode",
@@ -299,13 +299,14 @@ dependencies = [
  "monopoly-core",
  "serde",
  "tokio",
+ "toml",
  "tracing",
  "tracing-subscriber",
 ]
 
 [[package]]
 name = "monopoly-core"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "bincode",
@@ -317,7 +318,7 @@ dependencies = [
 
 [[package]]
 name = "monopoly-server"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "bincode",

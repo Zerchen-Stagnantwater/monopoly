@@ -4,6 +4,7 @@ use monopoly_core::network::ClientMessage;
 use monopoly_core::state::{GameState, TurnPhase};
 use monopoly_core::board::{Tile, ColorGroup};
 use crate::screens::Screen;
+use crate::theme::Theme;
 
 // Board geometry
 const BOARD_X: f32 = 20.0;
@@ -17,12 +18,13 @@ pub struct GameScreen {
     pub state: GameState,
     pub my_id: u8,
     pub tx: mpsc::Sender<ClientMessage>,
+    pub theme: Theme,
     bid_input: String,
 }
 
 impl GameScreen {
-    pub fn new(state: GameState, my_id: u8, tx: mpsc::Sender<ClientMessage>) -> Self {
-        Self { state, my_id, tx, bid_input: String::new() }
+    pub fn new(state: GameState, my_id: u8, tx: mpsc::Sender<ClientMessage>, theme: Theme) -> Self {
+        Self { state, my_id, tx, theme, bid_input: String::new() }
     }
 
 pub fn update(&mut self) -> Option<Screen> {

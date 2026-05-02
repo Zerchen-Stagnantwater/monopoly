@@ -3,10 +3,12 @@
 mod connection;
 mod screens;
 mod network_thread;
+mod theme;
 
 use macroquad::prelude::*;
 use monopoly_core::network::ServerMessage;
 use screens::Screen;
+use theme::load_theme;
 
 fn window_conf() -> Conf {
     Conf {
@@ -20,6 +22,8 @@ fn window_conf() -> Conf {
 
 #[macroquad::main(window_conf)]
 async fn main() {
+    let theme = load_theme();
+
     let (net_tx, net_rx) = std::sync::mpsc::channel::<ServerMessage>();
     let (action_tx, action_rx) = std::sync::mpsc::channel::<monopoly_core::network::ClientMessage>();
 
@@ -28,7 +32,7 @@ async fn main() {
         network_thread::run(net_tx, action_rx);
     });
 
-    let mut screen = Screen::connect(action_tx);
+    let mut screen = Screen::connect(action_tx, theme.clone());
 
     loop {
         clear_background(WHITE);
