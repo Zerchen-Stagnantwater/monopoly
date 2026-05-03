@@ -13,8 +13,8 @@ use theme::load_theme;
 fn window_conf() -> Conf {
     Conf {
         window_title: "Monopoly".to_owned(),
-        window_width: 1280,
-        window_height: 800,
+        window_width: 1400,
+        window_height: 820,
         fullscreen: false,
         ..Default::default()
     }

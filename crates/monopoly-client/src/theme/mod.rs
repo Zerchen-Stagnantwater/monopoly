@@ -69,7 +69,35 @@ pub struct Theme {
     // --- Background ---
     pub window_bg: Color,
 }
-
+/// Draw a soft glowing card panel — layered rectangles for depth effect.
+pub fn draw_card(x: f32, y: f32, w: f32, h: f32, theme: &Theme) {
+    // Outer glow layer
+    draw_rectangle(
+        x - 2.0, y - 2.0, w + 4.0, h + 4.0,
+        Color::new(
+            theme.panel_border.r,
+            theme.panel_border.g,
+            theme.panel_border.b,
+            0.15,
+        ),
+    );
+    // Main card body
+    draw_rectangle(x, y, w, h, theme.panel_bg);
+    // Top highlight — simulates soft light from above
+    draw_rectangle(
+        x, y, w, 2.0,
+        Color::new(1.0, 1.0, 1.0, 0.06),
+    );
+    // Border
+    draw_rectangle_lines(x, y, w, h, 1.0, 
+        Color::new(
+            theme.panel_border.r,
+            theme.panel_border.g,
+            theme.panel_border.b,
+            0.6,
+        ),
+    );
+}
 /// Load theme from config/ui.toml, fall back to classic if missing.
 pub fn load_theme() -> Theme {
     #[derive(Deserialize)]

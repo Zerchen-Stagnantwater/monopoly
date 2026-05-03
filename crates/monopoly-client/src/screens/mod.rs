@@ -95,6 +95,11 @@ impl Screen {
                     _ => {}
                 }
             }
+           ServerMessage::EventLog { message } => {
+                if let Screen::Game(s) = self {
+                    s.push_event(message);
+                }
+            } 
             ServerMessage::GameOver { winner_id, winner_name } => {
                 let theme = match self {
                     Screen::Game(s) => s.theme.clone(),

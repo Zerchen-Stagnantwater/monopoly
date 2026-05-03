@@ -28,52 +28,51 @@ impl ConnectScreen {
         }
     }
 
-    pub fn update(&mut self) -> Option<Screen> {
-        if is_key_pressed(KeyCode::Tab) {
-            self.active_field = match self.active_field {
-                Field::Address => Field::Name,
-                Field::Name => Field::Address,
-            };
-        }
+pub fn update(&mut self) -> Option<Screen> {
+    if is_key_pressed(KeyCode::Tab) {
+        self.active_field = match self.active_field {
+            Field::Address => Field::Name,
+            Field::Name => Field::Address,
+        };
+    }
 
-        if let Some(c) = get_char_pressed() {
-            if c != '\t' && c != '\r' && c != '\n' {
-                match self.active_field {
-                    Field::Address => self.addr_input.push(c),
-                    Field::Name => self.name_input.push(c),
-                }
-            }
-        }
-
-        if is_key_pressed(KeyCode::Backspace) {
-            match self.active_field {
-                Field::Address => { self.addr_input.pop(); }
-                Field::Name => { self.name_input.pop(); }
-            }
-        }
-
-        if is_key_pressed(KeyCode::Enter) {
-            if self.name_input.trim().is_empty() {
-                self.error = Some("Please enter your name".to_string());
-                return None;
-            }
-            if self.addr_input.trim().is_empty() {
-                self.error = Some("Please enter a server address".to_string());
-                return None;
-            }
-            let _ = self.tx.send(ClientMessage::Connect {
-                addr: self.addr_input.trim().to_string(),
-            });
+    // Check Enter BEFORE get_char_pressed so the \n isn't consumed into a field
+    if is_key_pressed(KeyCode::Enter) {
+        if self.name_input.trim().is_empty() {
+            self.error = Some("Please enter your name".to_string());
+        } else {
+            let addr = self.addr_input
+                .chars()
+                .filter(|c| c.is_ascii_graphic())
+                .collect::<String>();
+            let _ = self.tx.send(ClientMessage::Connect { addr: addr.clone() });
             return Some(Screen::Lobby(LobbyScreen::new(
                 self.tx.clone(),
                 self.name_input.trim().to_string(),
                 self.theme.clone(),
             )));
         }
-
-        None
+        return None;
     }
 
+    if let Some(c) = get_char_pressed() {
+        if c != '\t' && c != '\r' && c != '\n' {
+            match self.active_field {
+                Field::Address => self.addr_input.push(c),
+                Field::Name => self.name_input.push(c),
+            }
+        }
+    }
+
+    if is_key_pressed(KeyCode::Backspace) {
+        match self.active_field {
+            Field::Address => { self.addr_input.pop(); }
+            Field::Name => { self.name_input.pop(); }
+        }
+    }
+
+    None
+}
     pub fn draw(&self) {
         let t = &self.theme;
         let cx = screen_width() / 2.0;
