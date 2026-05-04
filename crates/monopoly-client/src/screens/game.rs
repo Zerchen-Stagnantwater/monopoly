@@ -27,6 +27,7 @@ pub struct GameScreen {
     event_log: Vec<String>,
     card_panel_open: bool,
     card_panel_scroll: f32,
+    selected_card: Option<usize>,
 }
 
 impl GameScreen {
@@ -40,6 +41,7 @@ impl GameScreen {
             event_log: Vec::new(),
             card_panel_open: false,
             card_panel_scroll: 0.0,
+            selected_card:None,
         }
     }
 
@@ -66,7 +68,43 @@ impl GameScreen {
                 }
             }
         }
-        
+        // Detect click on a mini card in the panel
+        if self.card_panel_open && is_mouse_button_pressed(MouseButton::Left) {
+            let (mx, my) = mouse_position();
+            if let Some(tile_index) = clicked_card(
+                &self.state,
+                self.my_id,
+                mx, my,
+                self.card_panel_scroll,
+                ) {
+                    // Toggle — clicking same card closes detail view
+                    if self.selected_card == Some(tile_index) {
+                        self.selected_card = None;
+                    } else {
+                        self.selected_card = Some(tile_index);
+                    }
+                }
+        }
+
+        // Escape closes detail view
+        if is_key_pressed(KeyCode::Escape) {
+            self.selected_card = None;
+        }   
+
+        // Card detail actions — only when a card is selected
+        if let Some(tile_index) = self.selected_card {
+            if is_key_pressed(KeyCode::M) {
+                let _ = self.tx.send(ClientMessage::Mortgage { tile_index });
+                self.selected_card = None;
+            }
+            if is_key_pressed(KeyCode::U) {
+                let _ = self.tx.send(ClientMessage::Unmortgage { tile_index });
+                self.selected_card = None;
+            }
+            if is_key_pressed(KeyCode::B) {
+                let _ = self.tx.send(ClientMessage::BuildHouse { tile_index });
+            }
+        } 
         if matches!(self.state.turn_phase, TurnPhase::Auction { .. }) {
             if let Some(c) = get_char_pressed() {
                 if c.is_ascii_digit() { self.bid_input.push(c); }
@@ -138,7 +176,11 @@ impl GameScreen {
         if self.card_panel_open {
             draw_card_panel(&self.state, self.my_id, t, self.card_panel_scroll);
         }
-        
+       
+        if let Some(tile_index) = self.selected_card{
+            draw_card_detail(&self.state, tile_index,self.my_id, t );
+        }
+
         if let Some(tile_index) = hovered_tile(mx, my){
             draw_tile_tooltip(&self.state, tile_index, mx, my, t);
         }
@@ -255,18 +297,28 @@ fn draw_board(state: &GameState, t: &Theme) {
                 let oc = player_color(owner_id, t);
                 draw_circle(x + w - 8.0, y + 8.0, 5.0, oc);
             }
-
             // Houses
-            for house in 0..p.houses.min(4) {
-                draw_rectangle(
-                    x + 3.0 + house as f32 * 9.0,
-                    y + h - 10.0,
-                    7.0, 7.0,
-                    GREEN,
-                );
-            }
-            if p.houses == 5 {
-                draw_rectangle(x + 3.0, y + h - 12.0, 14.0, 10.0, RED);
+            if p.houses > 0 && p.houses < 5 {
+                for house in 0..p.houses {
+                    draw_rectangle(
+                        x + 2.0 + house as f32 * 8.0,
+                        y + h - 11.0,
+                        6.0, 6.0,
+                        Color::from_rgba(0x2e, 0xcc, 0x71, 255),
+                    );
+                    draw_rectangle_lines(
+                        x + 2.0 + house as f32 * 8.0,
+                        y + h - 11.0,
+                        6.0, 6.0,
+                        1.0,
+                        Color::from_rgba(0x00, 0x80, 0x00, 255),
+                    );
+                }
+            } else if p.houses == 5 {
+                draw_rectangle(x + 2.0, y + h - 13.0, w - 4.0, 10.0,
+                    Color::from_rgba(0xe7, 0x4c, 0x3c, 255));
+                draw_rectangle_lines(x + 2.0, y + h - 13.0, w - 4.0, 10.0, 1.0,
+                    Color::from_rgba(0x8b, 0x00, 0x00, 255));
             }
         }
 
@@ -846,15 +898,25 @@ fn draw_mini_card(
             if p.houses > 0 && p.houses < 5 {
                 for i in 0..p.houses {
                     draw_rectangle(
-                        x + 4.0 + i as f32 * 14.0,
-                        y + h - 20.0,
-                        10.0, 10.0,
+                        x + 4.0 + i as f32 * 16.0,
+                        y + h - 22.0,
+                        12.0, 12.0,
                         Color::from_rgba(0x2e, 0xcc, 0x71, 255),
                     );
+                    draw_rectangle_lines(
+                        x + 4.0 + i as f32 * 16.0,
+                        y + h - 22.0,
+                        12.0, 12.0,
+                        1.0,
+                        Color::from_rgba(0x00, 0x80, 0x00, 255),
+                        );
                 }
             } else if p.houses == 5 {
-                draw_rectangle(x + 4.0, y + h - 20.0, 20.0, 10.0,
+                draw_rectangle(x + 4.0, y + h - 22.0, 60.0, 12.0,
                     Color::from_rgba(0xe7, 0x4c, 0x3c, 255));
+                draw_rectangle_lines(x + 4.0, y + h - 22.0, 60.0, 12.0, 1.0,
+                    Color::from_rgba(0x8b, 0x00, 0x00, 255));
+                draw_text("HOTEL", x + 8.0, y + h - 12.0, 9.0, WHITE); 
             }
 
             // Mortgaged overlay
@@ -895,6 +957,237 @@ fn draw_mini_card(
                 draw_rectangle(x, y, w, h, Color::new(0.0, 0.0, 0.0, 0.5));
                 draw_text("MORTGAGED", x + 4.0, y + h / 2.0, 9.0, t.debt_color);
             }
+        }
+
+        _ => {}
+    }
+}
+
+/// Returns the tile index of a mini card clicked in the panel.
+fn clicked_card(
+    state: &GameState,
+    my_id: u8,
+    mx: f32, my: f32,
+    scroll: f32,
+) -> Option<usize> {
+    use monopoly_core::board::Tile;
+
+    let player = state.players.iter().find(|p| p.id == my_id)?;
+
+    let card_w = 100.0;
+    let card_h = 130.0;
+    let card_gap = 8.0;
+    let panel_padding = 16.0;
+    let panel_h = card_h + panel_padding * 2.0 + 24.0;
+    let panel_y = screen_height() - panel_h;
+    let card_y = panel_y + 28.0;
+
+    // Must be clicking inside the panel
+    if my < panel_y || my > panel_y + panel_h { return None; }
+
+    let mut groups: std::collections::HashMap<String, Vec<usize>> =
+        std::collections::HashMap::new();
+    let mut group_order: Vec<String> = Vec::new();
+
+    for &tile_index in &player.properties {
+        let group_key = match &state.board.tiles[tile_index] {
+            Tile::Property(p) => format!("{:?}", p.color_group),
+            Tile::Railroad(_) => "Railroad".to_string(),
+            Tile::Utility(_)  => "Utility".to_string(),
+            _ => continue,
+        };
+        if !groups.contains_key(&group_key) {
+            group_order.push(group_key.clone());
+        }
+        groups.entry(group_key).or_default().push(tile_index);
+    }
+
+    let mut cx = panel_padding - scroll;
+    for group_key in &group_order {
+        for &tile_index in &groups[group_key] {
+            if mx >= cx && mx <= cx + card_w && my >= card_y && my <= card_y + card_h {
+                return Some(tile_index);
+            }
+            cx += card_w + card_gap;
+        }
+        cx += card_gap * 2.0;
+    }
+
+    None
+}
+
+fn draw_card_detail(state: &GameState, tile_index: usize, my_id: u8, t: &Theme) {
+    use monopoly_core::board::Tile;
+
+    // Dim background
+    draw_rectangle(0.0, 0.0, screen_width(), screen_height(),
+        Color::new(0.0, 0.0, 0.0, 0.6));
+
+    let card_w = 280.0;
+    let card_h = 420.0;
+    let cx = screen_width() / 2.0 - card_w / 2.0;
+    let cy = screen_height() / 2.0 - card_h / 2.0;
+
+    draw_card(cx, cy, card_w, card_h, t);
+
+    match &state.board.tiles[tile_index] {
+        Tile::Property(p) => {
+            let col = group_color(&p.color_group, t);
+
+            // Color header
+            draw_rectangle(cx, cy, card_w, 60.0, col);
+            draw_text(&p.name.to_uppercase(), cx + 12.0, cy + 22.0, 16.0, WHITE);
+            draw_text(
+                &format!("TITLE DEED"),
+                cx + 12.0, cy + 42.0, 11.0,
+                Color::new(1.0, 1.0, 1.0, 0.7),
+            );
+
+            // Price
+            draw_text(
+                &format!("Price: ${}", p.price),
+                cx + 12.0, cy + 80.0, t.body_size, t.panel_text,
+            );
+            draw_text(
+                &format!("Build: ${} per house", p.building_cost),
+                cx + 12.0, cy + 102.0, t.small_size, t.panel_subtext,
+            );
+
+            // Divider
+            draw_line(cx + 12.0, cy + 116.0, cx + card_w - 12.0, cy + 116.0,
+                1.0, t.panel_border);
+
+            // Rent table
+            let rows = [
+                ("Rent", p.rent[0]),
+                ("1 House", p.rent[1]),
+                ("2 Houses", p.rent[2]),
+                ("3 Houses", p.rent[3]),
+                ("4 Houses", p.rent[4]),
+                ("Hotel", p.rent[5]),
+            ];
+            for (i, (label, amount)) in rows.iter().enumerate() {
+                let ry = cy + 130.0 + i as f32 * 26.0;
+                let is_current = p.houses as usize == i;
+                let text_col = if is_current { t.money_color } else { t.panel_text };
+                if is_current {
+                    draw_rectangle(cx + 8.0, ry - 14.0, card_w - 16.0, 22.0,
+                        Color::new(t.money_color.r, t.money_color.g, t.money_color.b, 0.1));
+                }
+                draw_text(label, cx + 16.0, ry, t.small_size, text_col);
+                draw_text(&format!("${}", amount), cx + card_w - 60.0, ry, t.small_size, text_col);
+            }
+
+            // Divider
+            draw_line(cx + 12.0, cy + 300.0, cx + card_w - 12.0, cy + 300.0,
+                1.0, t.panel_border);
+
+            // Status
+            if p.mortgaged {
+                draw_text("MORTGAGED", cx + 12.0, cy + 320.0, t.body_size, t.debt_color);
+                draw_text(
+                    &format!("Unmortgage: ${}", (p.price / 2) + (p.price / 10)),
+                    cx + 12.0, cy + 342.0, t.small_size, t.panel_subtext,
+                );
+            } else {
+                draw_text(
+                    &format!("Mortgage value: ${}", p.price / 2),
+                    cx + 12.0, cy + 320.0, t.small_size, t.panel_subtext,
+                );
+            }
+
+            // Action buttons — only shown if it's your property
+            let is_owner = p.owner == Some(my_id);
+            let is_my_turn = state.players[state.current_player_index].id == my_id;
+
+            if is_owner && is_my_turn {
+                let btn_y = cy + card_h - 52.0;
+
+                if !p.mortgaged {
+                    // Mortgage button
+                    draw_rectangle(cx + 12.0, btn_y, 110.0, 34.0, t.debt_color);
+                    draw_text("[M] Mortgage", cx + 16.0, btn_y + 22.0, t.small_size, WHITE);
+
+                    // Build button
+                    draw_rectangle(cx + 134.0, btn_y, 110.0, 34.0,
+                        Color::from_rgba(0x2e, 0xcc, 0x71, 255));
+                    draw_text("[B] Build", cx + 150.0, btn_y + 22.0, t.small_size, t.panel_bg);
+                } else {
+                    // Unmortgage button
+                    draw_rectangle(cx + 12.0, btn_y, 150.0, 34.0, t.success_color);
+                    draw_text("[U] Unmortgage", cx + 16.0, btn_y + 22.0, t.small_size, t.panel_bg);
+                }
+            }
+
+            // Close hint
+            draw_text("[ESC] Close", cx + 12.0, cy + card_h - 12.0,
+                t.small_size, t.panel_subtext);
+        }
+
+        Tile::Railroad(r) => {
+            draw_rectangle(cx, cy, card_w, 60.0, t.panel_subtext);
+            draw_text(&r.name.to_uppercase(), cx + 12.0, cy + 22.0, 16.0, t.panel_bg);
+            draw_text("RAILROAD", cx + 12.0, cy + 42.0, 11.0,
+                Color::new(0.0, 0.0, 0.0, 0.6));
+
+            draw_text(&format!("Price: ${}", r.price), cx + 12.0, cy + 80.0, t.body_size, t.panel_text);
+            draw_line(cx + 12.0, cy + 100.0, cx + card_w - 12.0, cy + 100.0, 1.0, t.panel_border);
+
+            let rows = [("1 Railroad", 25u32), ("2 Railroads", 50), ("3 Railroads", 100), ("4 Railroads", 200)];
+            for (i, (label, amount)) in rows.iter().enumerate() {
+                draw_text(label, cx + 16.0, cy + 120.0 + i as f32 * 26.0, t.small_size, t.panel_text);
+                draw_text(&format!("${}", amount), cx + card_w - 60.0, cy + 120.0 + i as f32 * 26.0, t.small_size, t.panel_text);
+            }
+
+            if r.mortgaged {
+                draw_text("MORTGAGED", cx + 12.0, cy + 240.0, t.body_size, t.debt_color);
+            } else {
+                draw_text(&format!("Mortgage: ${}", r.price / 2), cx + 12.0, cy + 240.0, t.small_size, t.panel_subtext);
+            }
+
+            if r.owner == Some(my_id) && state.players[state.current_player_index].id == my_id {
+                let btn_y = cy + card_h - 52.0;
+                if !r.mortgaged {
+                    draw_rectangle(cx + 12.0, btn_y, 110.0, 34.0, t.debt_color);
+                    draw_text("[M] Mortgage", cx + 16.0, btn_y + 22.0, t.small_size, WHITE);
+                } else {
+                    draw_rectangle(cx + 12.0, btn_y, 150.0, 34.0, t.success_color);
+                    draw_text("[U] Unmortgage", cx + 16.0, btn_y + 22.0, t.small_size, t.panel_bg);
+                }
+            }
+
+            draw_text("[ESC] Close", cx + 12.0, cy + card_h - 12.0, t.small_size, t.panel_subtext);
+        }
+
+        Tile::Utility(u) => {
+            draw_rectangle(cx, cy, card_w, 60.0, t.group_light_blue);
+            draw_text(&u.name.to_uppercase(), cx + 12.0, cy + 22.0, 16.0, t.panel_bg);
+            draw_text("UTILITY", cx + 12.0, cy + 42.0, 11.0,
+                Color::new(0.0, 0.0, 0.0, 0.6));
+
+            draw_text(&format!("Price: ${}", u.price), cx + 12.0, cy + 80.0, t.body_size, t.panel_text);
+            draw_line(cx + 12.0, cy + 100.0, cx + card_w - 12.0, cy + 100.0, 1.0, t.panel_border);
+            draw_text("1 utility:   4x dice roll",  cx + 16.0, cy + 120.0, t.small_size, t.panel_text);
+            draw_text("2 utilities: 10x dice roll", cx + 16.0, cy + 146.0, t.small_size, t.panel_text);
+
+            if u.mortgaged {
+                draw_text("MORTGAGED", cx + 12.0, cy + 180.0, t.body_size, t.debt_color);
+            } else {
+                draw_text(&format!("Mortgage: ${}", u.price / 2), cx + 12.0, cy + 180.0, t.small_size, t.panel_subtext);
+            }
+
+            if u.owner == Some(my_id) && state.players[state.current_player_index].id == my_id {
+                let btn_y = cy + card_h - 52.0;
+                if !u.mortgaged {
+                    draw_rectangle(cx + 12.0, btn_y, 110.0, 34.0, t.debt_color);
+                    draw_text("[M] Mortgage", cx + 16.0, btn_y + 22.0, t.small_size, WHITE);
+                } else {
+                    draw_rectangle(cx + 12.0, btn_y, 150.0, 34.0, t.success_color);
+                    draw_text("[U] Unmortgage", cx + 16.0, btn_y + 22.0, t.small_size, t.panel_bg);
+                }
+            }
+
+            draw_text("[ESC] Close", cx + 12.0, cy + card_h - 12.0, t.small_size, t.panel_subtext);
         }
 
         _ => {}
