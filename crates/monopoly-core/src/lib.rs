@@ -12,6 +12,7 @@ pub mod buildings;
 pub mod trading;
 pub mod bankruptcy;
 pub mod network;
+pub mod cards;
 
 pub use board::Board;
 pub use player::Player;
@@ -27,3 +28,4 @@ pub use buildings::{build_house, sell_house, mortgage_property, unmortgage_prope
 pub use trading::{execute_trade, TradeOffer, TradeResult};
 pub use bankruptcy::{declare_bankrupt, liquidation_value, is_bankrupt, BankruptcyResult};
 pub use network::{ClientMessage, ServerMessage, Packet};
+pub use cards::{CardDecks, Card, CardEffect, load_card_decks};

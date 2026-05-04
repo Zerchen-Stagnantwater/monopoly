@@ -93,6 +93,7 @@ impl Lobby {
 
     pub fn start_game(&mut self) -> anyhow::Result<()> {
         let board = load_board("config/boards/standard.toml")?;
+        let card_decks = monopoly_core::load_card_decks("config/cards/standard.toml")?;
         let ruleset = &self.ruleset;
 
         let players = self.players.values().map(|lp| {
@@ -117,6 +118,8 @@ impl Lobby {
             houses_remaining: ruleset.max_houses,
             hotels_remaining: ruleset.max_hotels,
             auction_passers: Vec::new(),
+            card_decks,
+            last_card: None,
         });
 
         self.state = LobbyState::InGame;

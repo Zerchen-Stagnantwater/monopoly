@@ -1,0 +1,164 @@
+# Standard Monopoly card decks
+# effect types: collect, pay, move_to, move_back, go_to_jail, get_out_of_jail, pay_per_house
+
+[[community_chest]]
+description = "Advance to Go (Collect $200)"
+effect = "move_to"
+value = 0
+
+[[community_chest]]
+description = "Bank error in your favor — Collect $200"
+effect = "collect"
+value = 200
+
+[[community_chest]]
+description = "Doctor's fees — Pay $50"
+effect = "pay"
+value = 50
+
+[[community_chest]]
+description = "From sale of stock you get $50"
+effect = "collect"
+value = 50
+
+[[community_chest]]
+description = "Get out of jail free"
+effect = "get_out_of_jail"
+value = 0
+
+[[community_chest]]
+description = "Go to jail"
+effect = "go_to_jail"
+value = 0
+
+[[community_chest]]
+description = "Holiday fund matures — Receive $100"
+effect = "collect"
+value = 100
+
+[[community_chest]]
+description = "Income tax refund — Collect $20"
+effect = "collect"
+value = 20
+
+[[community_chest]]
+description = "It is your birthday — Collect $10 from each player"
+effect = "collect_from_players"
+value = 10
+
+[[community_chest]]
+description = "Life insurance matures — Collect $100"
+effect = "collect"
+value = 100
+
+[[community_chest]]
+description = "Pay hospital fees of $100"
+effect = "pay"
+value = 100
+
+[[community_chest]]
+description = "Pay school fees of $50"
+effect = "pay"
+value = 50
+
+[[community_chest]]
+description = "Receive $25 consultancy fee"
+effect = "collect"
+value = 25
+
+[[community_chest]]
+description = "You are assessed for street repairs — Pay $40 per house, $115 per hotel"
+effect = "pay_per_house"
+value = 40
+hotel_value = 115
+
+[[community_chest]]
+description = "You have won second prize in a beauty contest — Collect $10"
+effect = "collect"
+value = 10
+
+[[community_chest]]
+description = "You inherit $100"
+effect = "collect"
+value = 100
+
+[[chance]]
+description = "Advance to Go (Collect $200)"
+effect = "move_to"
+value = 0
+
+[[chance]]
+description = "Advance to Illinois Ave"
+effect = "move_to"
+value = 24
+
+[[chance]]
+description = "Advance to St. Charles Place"
+effect = "move_to"
+value = 11
+
+[[chance]]
+description = "Advance to nearest utility"
+effect = "move_to_nearest_utility"
+value = 0
+
+[[chance]]
+description = "Advance to nearest railroad"
+effect = "move_to_nearest_railroad"
+value = 0
+
+[[chance]]
+description = "Bank pays you dividend of $50"
+effect = "collect"
+value = 50
+
+[[chance]]
+description = "Get out of jail free"
+effect = "get_out_of_jail"
+value = 0
+
+[[chance]]
+description = "Go back 3 spaces"
+effect = "move_back"
+value = 3
+
+[[chance]]
+description = "Go to jail"
+effect = "go_to_jail"
+value = 0
+
+[[chance]]
+description = "Make general repairs — Pay $25 per house, $100 per hotel"
+effect = "pay_per_house"
+value = 25
+hotel_value = 100
+
+[[chance]]
+description = "Pay poor tax of $15"
+effect = "pay"
+value = 15
+
+[[chance]]
+description = "Take a trip to Reading Railroad"
+effect = "move_to"
+value = 5
+
+[[chance]]
+description = "Take a walk on the Boardwalk"
+effect = "move_to"
+value = 39
+
+[[chance]]
+description = "You have been elected chairman — Pay $50 to each player"
+effect = "pay_per_player"
+value = 50
+
+[[chance]]
+description = "Your building and loan matures — Collect $150"
+effect = "collect"
+value = 150
+
+[[chance]]
+description = "You have won a crossword competition — Collect $100"
+effect = "collect"
+value = 100

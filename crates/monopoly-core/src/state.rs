@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 use crate::{Board, Player};
+use crate::cards::CardDecks;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub enum TurnPhase {
@@ -27,6 +28,8 @@ pub struct GameState {
     pub houses_remaining: u8,
     pub hotels_remaining: u8,
     pub auction_passers: Vec<u8>,
+    pub card_decks: CardDecks,
+    pub last_card: Option<String>,
 }
 
 impl GameState {
