@@ -10,8 +10,8 @@ rules, modes, and mechanics straightforward rather than a hack.
 
 ## Status
 
-`v0.2.0-alpha` — Core gameplay working. Multiplayer over TCP functional.
-UI polish, buildings, trading, and jail edge cases in progress.
+`v0.3.0` — UI polish complete. Theme system, tooltips, and property card collection done.
+Interactions and trading coming in v0.4.0.
 
 ## Features
 
@@ -72,15 +72,25 @@ For internet play, the host needs to forward port `7777` on their router.
 - [x] macroquad GUI — board, players, action panel
 - [x] Auction system (simultaneous bidding)
 
-### v0.3.0 — UI Polish (in progress)
-- [ ] Theme system (Classic, Midnight, Retro)
-- [ ] Ownership indicators on board tiles
-- [ ] Property card collection per player
-- [ ] Full card view with mortgage and build actions
-- [ ] Trade screen
-- [ ] Jail edge case fixes
+### v0.3.0 — UI Polish ✓
+- [x] Theme system (Classic, Midnight, Retro)
+- [x] Dashboard game screen with card panels
+- [x] Board tile hover tooltips with full property details
+- [x] Property card collection panel with horizontal scroll
+- [x] Community Chest and Chance card decks (standard set)
+- [x] Data-driven card decks via TOML config
+- [x] Player color consistency across board and panels
+- [x] Connect screen and lobby screen themed
+- [x] Soft ambient background, no harsh whites
 
-### v0.4.0 — Extensibility
+### v0.4.0 — Interactions (in progress)
+- [ ] Property card detail view on click
+- [ ] Mortgage and build actions from card view
+- [ ] Trading screen
+- [ ] Jail edge case fixes
+- [ ] Buildings and mortgaging keybindings
+
+### v0.5.0 — Extensibility
 - [ ] Custom ruleset hookpoints
 - [ ] Mode selection in lobby
 - [ ] Relay server / room codes (v2 networking)
