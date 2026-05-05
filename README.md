@@ -10,8 +10,8 @@ rules, modes, and mechanics straightforward rather than a hack.
 
 ## Status
 
-`v0.3.0` — UI polish complete. Theme system, tooltips, and property card collection done.
-Interactions and trading coming in v0.4.0.
+`v0.4.0` — Interactions complete. Property cards, trading, mortgage, build all wired up.
+Jail edge cases and tooltip in trade screen coming in v0.5.0.
 
 ## Features
 
@@ -83,14 +83,23 @@ For internet play, the host needs to forward port `7777` on their router.
 - [x] Connect screen and lobby screen themed
 - [x] Soft ambient background, no harsh whites
 
-### v0.4.0 — Interactions (in progress)
-- [ ] Property card detail view on click
-- [ ] Mortgage and build actions from card view
-- [ ] Trading screen
-- [ ] Jail edge case fixes
-- [ ] Buildings and mortgaging keybindings
+### v0.4.0 — Interactions ✓
+- [x] Property card detail view on click
+- [x] Mortgage and build actions from card view
+- [x] Trading screen with property selection and money input
+- [x] Card panel click offset fix
+- [x] Trade screen card overflow with per-column scroll
+- [x] Tooltip blocked during trade and detail screens
+- [x] game.rs refactored into 6 focused modules
 
-### v0.5.0 — Extensibility
+### v0.5.0 — Polish and fixes (next)
+- [ ] Jail edge cases — doubles tracking, consecutive doubles
+- [ ] Tooltip on trade screen property cards
+- [ ] Trade accept/reject proper UI prompt
+- [ ] Sell house from card detail view
+- [ ] Building validation feedback to client
+
+### v0.6.0 — Extensibility
 - [ ] Custom ruleset hookpoints
 - [ ] Mode selection in lobby
 - [ ] Relay server / room codes (v2 networking)
