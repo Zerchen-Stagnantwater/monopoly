@@ -99,7 +99,21 @@ impl Screen {
                 if let Screen::Game(s) = self {
                     s.push_event(message);
                 }
-            } 
+            }
+           ServerMessage::TradeProposed {
+                from_player,
+                offered_properties: _,
+                offered_money: _,
+                requested_properties: _ ,
+                requested_money: _,
+            } => {
+                if let Screen::Game(s) = self {
+                    s.push_event(format!(
+                        "Player {} proposed a trade! [Y] Accept [N] Reject",
+                        from_player
+                    ));
+                }
+            }        
             ServerMessage::GameOver { winner_id, winner_name } => {
                 let theme = match self {
                     Screen::Game(s) => s.theme.clone(),
