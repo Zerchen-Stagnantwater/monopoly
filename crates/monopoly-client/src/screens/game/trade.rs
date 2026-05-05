@@ -18,6 +18,8 @@ pub struct TradeScreenState {
     pub requested_properties: Vec<usize>,
     pub requested_money_input: String,
     pub active_input: TradeInput,
+    pub offer_scroll: f32,
+    pub request_scroll: f32,
 }
 
 impl TradeScreenState {
@@ -29,6 +31,8 @@ impl TradeScreenState {
             requested_properties: Vec::new(),
             requested_money_input: String::from("0"),
             active_input: TradeInput::OfferedMoney,
+            offer_scroll: 0.0,
+            request_scroll: 0.0,
         }
     }
 }
@@ -106,13 +110,13 @@ pub fn draw_trade_screen(
     );
 
     draw_text("Properties:", left_x, col_y + 52.0, t.small_size, t.panel_subtext);
+    let prop_area_h = panel_h - 140.0;
     if let Some(player) = state.players.iter().find(|p| p.id == my_id) {
-        for (i, &tile_index) in player.properties.iter().enumerate() {
-            let card_x = left_x + (i as f32 % 4.0) * 88.0;
-            let card_y = col_y + 60.0 + (i as f32 / 4.0).floor() * 90.0;
-            let selected = trade.offered_properties.contains(&tile_index);
-            draw_mini_card_trade(state, tile_index, card_x, card_y, 80.0, 80.0, selected, t);
-        }
+        draw_property_grid(
+            state, &player.properties, &trade.offered_properties,
+            left_x, col_y + 60.0, col_w - 16.0, prop_area_h,
+            trade.offer_scroll, t,
+        );
     }
 
     // --- YOU REQUEST ---
@@ -133,12 +137,11 @@ pub fn draw_trade_screen(
 
     draw_text("Properties:", right_x, col_y + 52.0, t.small_size, t.panel_subtext);
     if let Some(player) = state.players.iter().find(|p| p.id == trade.target_player) {
-        for (i, &tile_index) in player.properties.iter().enumerate() {
-            let card_x = right_x + (i as f32 % 4.0) * 88.0;
-            let card_y = col_y + 60.0 + (i as f32 / 4.0).floor() * 90.0;
-            let selected = trade.requested_properties.contains(&tile_index);
-            draw_mini_card_trade(state, tile_index, card_x, card_y, 80.0, 80.0, selected, t);
-        }
+        draw_property_grid(
+            state, &player.properties, &trade.requested_properties,
+            right_x, col_y + 60.0, col_w - 16.0, prop_area_h,
+            trade.request_scroll, t,
+        );
     }
 
     // Bottom bar
@@ -157,6 +160,33 @@ pub fn draw_trade_screen(
         t.small_size, t.panel_subtext);
 }
 
+fn draw_property_grid(
+    state: &GameState,
+    properties: &[usize],
+    selected: &[usize],
+    x: f32, y: f32,
+    w: f32, h: f32,
+    scroll: f32,
+    t: &Theme,
+) {
+    let card_w = 80.0;
+    let card_h = 80.0;
+    let card_gap = 6.0;
+    let cols = ((w + card_gap) / (card_w + card_gap)).floor() as usize;
+
+    for (i, &tile_index) in properties.iter().enumerate() {
+        let col = i % cols;
+        let row = i / cols;
+        let card_x = x + col as f32 * (card_w + card_gap);
+        let card_y = y + row as f32 * (card_h + card_gap) - scroll;
+
+        // Clip — only draw if inside the property area
+        if card_y + card_h < y || card_y > y + h { continue; }
+
+        let is_selected = selected.contains(&tile_index);
+        draw_mini_card_trade(state, tile_index, card_x, card_y, card_w, card_h, is_selected, t);
+    }
+}
 fn draw_mini_card_trade(
     state: &GameState,
     tile_index: usize,

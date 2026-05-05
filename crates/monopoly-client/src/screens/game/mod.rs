@@ -112,6 +112,20 @@ impl GameScreen {
                     TradeInput::RequestedMoney => TradeInput::OfferedMoney,
                 };
             }
+            
+            let (_, wheel_y) = mouse_wheel();
+            if wheel_y != 0.0 {
+                let (mx, _) = mouse_position();
+                let panel_w = 860.0;
+                let px = screen_width() / 2.0 - panel_w / 2.0;
+                let col_w = (panel_w - 40.0) / 2.0;
+                let mid_x = px + 12.0 + col_w + 16.0;
+                if mx < mid_x {
+                    trade.offer_scroll = (trade.offer_scroll - wheel_y * 30.0).max(0.0);
+                } else {
+                    trade.request_scroll = (trade.request_scroll - wheel_y * 30.0).max(0.0);
+                }
+            }
 
             if let Some(c) = get_char_pressed() {
                 if c.is_ascii_digit() {
@@ -186,17 +200,26 @@ impl GameScreen {
                 let left_x  = px + 12.0;
                 let right_x = px + 12.0 + col_w + 16.0;
                 let col_y   = py + 76.0;
+                let card_w  = 80.0;
+                let card_h  = 80.0;
+                let card_gap = 6.0;
+                let prop_y  = col_y + 60.0;
+                let prop_area_h = panel_h - 140.0;
+                let cols = ((col_w - 16.0 + card_gap) / (card_w + card_gap)).floor() as usize;
 
                 let my_props: Vec<usize> = self.state.players.iter()
                     .find(|p| p.id == self.my_id)
                     .map(|p| p.properties.clone())
                     .unwrap_or_default();
-
+ 
                 for (i, &tile_index) in my_props.iter().enumerate() {
-                    let card_x = left_x + (i as f32 % 4.0) * 88.0;
-                    let card_y = col_y + 60.0 + (i as f32 / 4.0).floor() * 90.0;
-                    if mx >= card_x && mx <= card_x + 80.0 &&
-                       my >= card_y && my <= card_y + 80.0 {
+                    let col = i % cols;
+                    let row = i / cols;
+                    let card_x = left_x + col as f32 * (card_w + card_gap);
+                    let card_y = prop_y + row as f32 * (card_h + card_gap) - trade.offer_scroll;
+                    if card_y + card_h < prop_y || card_y > prop_y + prop_area_h { continue; }
+                    if mx >= card_x && mx <= card_x + card_w &&
+                    my >= card_y && my <= card_y + card_h {
                         if trade.offered_properties.contains(&tile_index) {
                             trade.offered_properties.retain(|&t| t != tile_index);
                         } else {
@@ -209,12 +232,15 @@ impl GameScreen {
                     .find(|p| p.id == trade.target_player)
                     .map(|p| p.properties.clone())
                     .unwrap_or_default();
-
+                
                 for (i, &tile_index) in target_props.iter().enumerate() {
-                    let card_x = right_x + (i as f32 % 4.0) * 88.0;
-                    let card_y = col_y + 60.0 + (i as f32 / 4.0).floor() * 90.0;
-                    if mx >= card_x && mx <= card_x + 80.0 &&
-                       my >= card_y && my <= card_y + 80.0 {
+                    let col = i % cols;
+                    let row = i / cols;
+                    let card_x = right_x + col as f32 * (card_w + card_gap);
+                    let card_y = prop_y + row as f32 * (card_h + card_gap) - trade.request_scroll;
+                    if card_y + card_h < prop_y || card_y > prop_y + prop_area_h { continue; }
+                    if mx >= card_x && mx <= card_x + card_w &&
+                    my >= card_y && my <= card_y + card_h {
                         if trade.requested_properties.contains(&tile_index) {
                             trade.requested_properties.retain(|&t| t != tile_index);
                         } else {
@@ -222,6 +248,7 @@ impl GameScreen {
                         }
                     }
                 }
+
             }
 
             return None;
@@ -344,9 +371,10 @@ impl GameScreen {
         if let Some(ref trade) = self.trade_screen {
             trade::draw_trade_screen(&self.state, self.my_id, trade, t);
         }
-
-        if let Some(tile_index) = tooltip::hovered_tile(mx, my) {
-            tooltip::draw_tile_tooltip(&self.state, tile_index, mx, my, t);
+        if self.trade_screen.is_none() && self.selected_card.is_none() {
+            if let Some(tile_index) = tooltip::hovered_tile(mx, my) {
+                tooltip::draw_tile_tooltip(&self.state, tile_index, mx, my, t);
+            }
         }
 
         let hint = if self.card_panel_open { "[C] Close cards" } else { "[C] My cards" };

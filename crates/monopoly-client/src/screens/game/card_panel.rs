@@ -90,8 +90,16 @@ pub fn clicked_card(
     if my < panel_y { return None; }
 
     let (groups, group_order) = group_properties(state, &player.properties);
-
-    let mut cx = panel_padding - scroll;
+    
+    let panel_w = screen_width();
+    let mut total_w = panel_padding;
+    for key in &group_order {
+        total_w += groups[key].len() as f32 * (card_w + card_gap) + card_gap * 2.0;
+    }
+    let max_scroll = (total_w - panel_w + panel_padding).max(0.0);
+    let clamped_scroll = scroll.min(max_scroll);
+    
+    let mut cx = panel_padding - clamped_scroll;
     for key in &group_order {
         for &tile_index in &groups[key] {
             if mx >= cx && mx <= cx + card_w && my >= card_y && my <= card_y + card_h {
